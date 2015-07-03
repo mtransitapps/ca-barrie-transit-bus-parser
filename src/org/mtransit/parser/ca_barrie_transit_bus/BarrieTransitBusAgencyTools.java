@@ -106,6 +106,16 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 		return AGENCY_COLOR;
 	}
 
+	private static final String COLOR_EC008C = "EC008C";
+	private static final String COLOR_ED1C24 = "ED1C24";
+	private static final String COLOR_0089CF = "0089CF";
+	private static final String COLOR_918BC3 = "918BC3";
+	private static final String COLOR_8ED8F8 = "8ED8F8";
+	private static final String COLOR_B2D235 = "B2D235";
+	private static final String COLOR_F58220 = "F58220";
+	private static final String COLOR_000000 = "000000";
+	private static final String COLOR_007236 = "007236";
+
 	@Override
 	public String getRouteColor(GRoute gRoute) {
 		Matcher matcher = DIGITS.matcher(gRoute.route_short_name);
@@ -113,15 +123,15 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 		int routeId = Integer.parseInt(matcher.group());
 		switch (routeId) {
 		// @formatter:off
-		case 1: return "EC008C";
-		case 2: return "ED1C24";
-		case 3: return "0089CF";
-		case 4: return "918BC3";
-		case 5: return "8ED8F8";
-		case 6: return "B2D235";
-		case 7: return "F58220";
-		case 8: return "000000";
-		case 90: return "007236";
+		case 1: return COLOR_EC008C;
+		case 2: return COLOR_ED1C24;
+		case 3: return COLOR_0089CF;
+		case 4: return COLOR_918BC3;
+		case 5: return COLOR_8ED8F8;
+		case 6: return COLOR_B2D235;
+		case 7: return COLOR_F58220;
+		case 8: return COLOR_000000;
+		case 90: return COLOR_007236;
 		// @formatter:on
 		}
 		System.out.println("Unexpected route color " + gRoute);
@@ -131,7 +141,7 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 
 	@Override
 	public void setTripHeadsign(MRoute mRoute, MTrip mTrip, GTrip gTrip, GSpec gtfs) {
-		GRoute gRoute = gtfs.routes.get(gTrip.getRouteId());
+		GRoute gRoute = gtfs.getRoute(gTrip.getRouteId());
 		String rsn = gRoute.route_short_name;
 		String rsn_letter = rsn.substring(rsn.length() - 1, rsn.length());
 		String tripHeadsign = rsn_letter + " " + getRouteLongName(gRoute);
