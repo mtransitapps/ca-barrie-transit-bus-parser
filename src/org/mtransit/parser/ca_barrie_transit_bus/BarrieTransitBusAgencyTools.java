@@ -79,21 +79,21 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 
 	@Override
 	public long getRouteId(GRoute gRoute) {
-		Matcher matcher = DIGITS.matcher(gRoute.route_short_name);
+		Matcher matcher = DIGITS.matcher(gRoute.getRouteShortName());
 		matcher.find();
 		return Long.parseLong(matcher.group());
 	}
 
 	@Override
 	public String getRouteShortName(GRoute gRoute) {
-		Matcher matcher = DIGITS.matcher(gRoute.route_short_name);
+		Matcher matcher = DIGITS.matcher(gRoute.getRouteShortName());
 		matcher.find();
 		return matcher.group();
 	}
 
 	@Override
 	public String getRouteLongName(GRoute gRoute) {
-		String routeLongName = gRoute.route_long_name;
+		String routeLongName = gRoute.getRouteLongName();
 		routeLongName = routeLongName.toLowerCase(Locale.ENGLISH);
 		return CleanUtils.cleanLabel(routeLongName);
 	}
@@ -118,7 +118,7 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 
 	@Override
 	public String getRouteColor(GRoute gRoute) {
-		Matcher matcher = DIGITS.matcher(gRoute.route_short_name);
+		Matcher matcher = DIGITS.matcher(gRoute.getRouteShortName());
 		matcher.find();
 		int routeId = Integer.parseInt(matcher.group());
 		switch (routeId) {
@@ -142,7 +142,7 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 	@Override
 	public void setTripHeadsign(MRoute mRoute, MTrip mTrip, GTrip gTrip, GSpec gtfs) {
 		GRoute gRoute = gtfs.getRoute(gTrip.getRouteId());
-		String rsn = gRoute.route_short_name;
+		String rsn = gRoute.getRouteShortName();
 		String rsn_letter = rsn.substring(rsn.length() - 1, rsn.length());
 		String tripHeadsign = rsn_letter + " " + getRouteLongName(gRoute);
 		int directionId;
@@ -177,6 +177,6 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 
 	@Override
 	public int getStopId(GStop gStop) {
-		return Integer.parseInt(gStop.stop_code); // use stop code as stop ID
+		return Integer.parseInt(gStop.getStopCode()); // use stop code as stop ID
 	}
 }
