@@ -159,11 +159,11 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 				MDirectionType.WEST.intValue(), MTrip.HEADSIGN_TYPE_STRING, "Pk Pl") //
 				.addTripSort(MDirectionType.EAST.intValue(), //
 						Arrays.asList(new String[] { //
-						"1", "247", "775" //
+						"1", "247", "775", "776" //
 						})) //
 				.addTripSort(MDirectionType.WEST.intValue(), //
 						Arrays.asList(new String[] { //
-						"775", "160", "1" //
+						"776", "775", "160", "1" //
 						})) //
 				.compileBothTripSort());
 		ALL_ROUTE_TRIPS2 = map2;
