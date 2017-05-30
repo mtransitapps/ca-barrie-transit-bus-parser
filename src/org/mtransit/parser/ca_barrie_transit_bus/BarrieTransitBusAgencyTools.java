@@ -30,6 +30,8 @@ import org.mtransit.parser.mt.data.MTripStop;
 
 // http://www.barrie.ca/Living/Getting%20Around/BarrieTransit/Pages/Barrie-GTFS.aspx
 // http://transit.cityofbarriesites.com/files/google_transit.zip
+// http://www.myridebarrie.ca/gtfs/
+// http://www.myridebarrie.ca/gtfs/Google_transit.zip
 public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 
 	public static void main(String[] args) {
@@ -89,9 +91,16 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 
 	@Override
 	public long getRouteId(GRoute gRoute) {
+		if (Utils.isDigitsOnly(gRoute.getRouteShortName())) {
+			return Long.parseLong(gRoute.getRouteShortName()); // use route short name as route ID
+		}
 		Matcher matcher = DIGITS.matcher(gRoute.getRouteShortName());
-		matcher.find();
-		return Long.parseLong(matcher.group());
+		if (matcher.find()) {
+			return Long.parseLong(matcher.group()); // merge routes
+		}
+		System.out.println("Unexpected route ID " + gRoute);
+		System.exit(-1);
+		return -1l;
 	}
 
 	@Override
@@ -155,15 +164,17 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 	static {
 		HashMap<Long, RouteTripSpec> map2 = new HashMap<Long, RouteTripSpec>();
 		map2.put(11l, new RouteTripSpec(11l, //
-				MDirectionType.EAST.intValue(), MTrip.HEADSIGN_TYPE_STRING, "Fenchurch Mnr", //
+				MDirectionType.EAST.intValue(), MTrip.HEADSIGN_TYPE_STRING, "Priscillas Pl", //
 				MDirectionType.WEST.intValue(), MTrip.HEADSIGN_TYPE_STRING, "Pk Pl") //
 				.addTripSort(MDirectionType.EAST.intValue(), //
 						Arrays.asList(new String[] { //
-						"1", "247", "775", "776" //
+						"903c6a95-9fc8-4074-b50a-7d6feefc758a", // "777", // Park Place
+								"3263b59b-65b6-4e2a-9894-daf9df181e4d", // "974", // Priscilla's Place
 						})) //
 				.addTripSort(MDirectionType.WEST.intValue(), //
 						Arrays.asList(new String[] { //
-						"776", "775", "160", "1" //
+						"3263b59b-65b6-4e2a-9894-daf9df181e4d", // "974", // Priscilla's Place
+								"903c6a95-9fc8-4074-b50a-7d6feefc758a", // "777", // Park Place
 						})) //
 				.compileBothTripSort());
 		ALL_ROUTE_TRIPS2 = map2;
