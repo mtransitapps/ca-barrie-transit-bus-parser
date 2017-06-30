@@ -168,13 +168,13 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 				MDirectionType.WEST.intValue(), MTrip.HEADSIGN_TYPE_STRING, "Pk Pl") //
 				.addTripSort(MDirectionType.EAST.intValue(), //
 						Arrays.asList(new String[] { //
-						"903c6a95-9fc8-4074-b50a-7d6feefc758a", // "777", // Park Place
-								"3263b59b-65b6-4e2a-9894-daf9df181e4d", // "974", // Priscilla's Place
+						"32d1cdb2-156a-4221-967a-e26dafa59100", // "777", // Park Place
+								"388ccfac-6440-4587-ab21-b05e72360558", // "974", // Priscilla's Place
 						})) //
 				.addTripSort(MDirectionType.WEST.intValue(), //
 						Arrays.asList(new String[] { //
-						"3263b59b-65b6-4e2a-9894-daf9df181e4d", // "974", // Priscilla's Place
-								"903c6a95-9fc8-4074-b50a-7d6feefc758a", // "777", // Park Place
+						"388ccfac-6440-4587-ab21-b05e72360558", // "974", // Priscilla's Place
+								"32d1cdb2-156a-4221-967a-e26dafa59100", // "777", // Park Place
 						})) //
 				.compileBothTripSort());
 		ALL_ROUTE_TRIPS2 = map2;
