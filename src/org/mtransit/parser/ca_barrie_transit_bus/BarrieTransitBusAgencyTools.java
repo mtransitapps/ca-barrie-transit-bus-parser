@@ -106,8 +106,12 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 	@Override
 	public String getRouteShortName(GRoute gRoute) {
 		Matcher matcher = DIGITS.matcher(gRoute.getRouteShortName());
-		matcher.find();
-		return matcher.group();
+		if (matcher.find()) {
+			return matcher.group();
+		}
+		System.out.println("Unexpected route short name " + gRoute);
+		System.exit(-1);
+		return null;
 	}
 
 	@Override
@@ -160,6 +164,9 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 		return null;
 	}
 
+	private static final String STOP_ID_777 = "0faa6de3-3fe8-4598-b789-f98b262cf037";
+	private static final String STOP_ID_974 = "a27601df-1b1f-43c2-a442-3aadfe464f27";
+
 	private static HashMap<Long, RouteTripSpec> ALL_ROUTE_TRIPS2;
 	static {
 		HashMap<Long, RouteTripSpec> map2 = new HashMap<Long, RouteTripSpec>();
@@ -168,13 +175,13 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 				MDirectionType.WEST.intValue(), MTrip.HEADSIGN_TYPE_STRING, "Pk Pl") //
 				.addTripSort(MDirectionType.EAST.intValue(), //
 						Arrays.asList(new String[] { //
-						"4829a587-6fb2-4ea7-88c8-f6ea4f7eba5a", // "777", // Park Place
-								"212240a7-d45f-4155-bc39-6dc258c9f7a3", // "974", // Priscilla's Place
+						STOP_ID_777, // "777", // Park Place
+								STOP_ID_974, // "974", // Priscilla's Place
 						})) //
 				.addTripSort(MDirectionType.WEST.intValue(), //
 						Arrays.asList(new String[] { //
-						"212240a7-d45f-4155-bc39-6dc258c9f7a3", // "974", // Priscilla's Place
-								"4829a587-6fb2-4ea7-88c8-f6ea4f7eba5a", // "777", // Park Place
+						STOP_ID_974, // "974", // Priscilla's Place
+								STOP_ID_777, // "777", // Park Place
 						})) //
 				.compileBothTripSort());
 		ALL_ROUTE_TRIPS2 = map2;
