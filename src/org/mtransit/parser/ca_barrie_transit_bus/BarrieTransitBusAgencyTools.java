@@ -143,29 +143,30 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 	@Override
 	public String getRouteColor(GRoute gRoute) {
 		Matcher matcher = DIGITS.matcher(gRoute.getRouteShortName());
-		matcher.find();
-		int routeId = Integer.parseInt(matcher.group());
-		switch (routeId) {
-		// @formatter:off
-		case 1: return COLOR_EC008C;
-		case 2: return COLOR_ED1C24;
-		case 3: return COLOR_0089CF;
-		case 4: return COLOR_918BC3;
-		case 5: return COLOR_8ED8F8;
-		case 6: return COLOR_B2D235;
-		case 7: return COLOR_F58220;
-		case 8: return COLOR_000000;
-		case 11: return COLOR_FFFF00;
-		case 90: return COLOR_007236;
-		// @formatter:on
+		if (matcher.find()) {
+			int routeId = Integer.parseInt(matcher.group());
+			switch (routeId) {
+			// @formatter:off
+			case 1: return COLOR_EC008C;
+			case 2: return COLOR_ED1C24;
+			case 3: return COLOR_0089CF;
+			case 4: return COLOR_918BC3;
+			case 5: return COLOR_8ED8F8;
+			case 6: return COLOR_B2D235;
+			case 7: return COLOR_F58220;
+			case 8: return COLOR_000000;
+			case 11: return COLOR_FFFF00;
+			case 90: return COLOR_007236;
+			// @formatter:on
+			}
 		}
 		System.out.printf("\nUnexpected route color %s!", gRoute);
 		System.exit(-1);
 		return null;
 	}
 
-	private static final String STOP_ID_777 = "02b8a3aa-8a30-4d0c-b143-f2a873b745b4";
-	private static final String STOP_ID_974 = "1a362e30-1485-4365-a8e5-979530b6899d";
+	private static final String STOP_ID_777 = "238eb083-6a3d-4eba-b700-c381b3dd1555";
+	private static final String STOP_ID_974 = "402ab14c-4882-470d-bf7a-b9b03be4a75d";
 
 	private static HashMap<Long, RouteTripSpec> ALL_ROUTE_TRIPS2;
 	static {
@@ -238,8 +239,6 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 		tripHeadsign = CleanUtils.cleanStreetTypes(tripHeadsign);
 		return CleanUtils.cleanLabel(tripHeadsign);
 	}
-
-
 
 	@Override
 	public String cleanStopName(String gStopName) {
