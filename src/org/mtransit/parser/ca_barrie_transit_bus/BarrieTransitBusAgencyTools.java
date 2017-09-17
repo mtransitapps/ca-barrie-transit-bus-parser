@@ -165,8 +165,8 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 		return null;
 	}
 
-	private static final String STOP_ID_777 = "238eb083-6a3d-4eba-b700-c381b3dd1555";
-	private static final String STOP_ID_974 = "402ab14c-4882-470d-bf7a-b9b03be4a75d";
+	private static final String STOP_ID_777 = "b2740c61-b629-4cdb-871d-fa853a2009fc";
+	private static final String STOP_ID_974 = "2324e78f-c060-41cd-a3c3-80ae7851e7eb";
 
 	private static HashMap<Long, RouteTripSpec> ALL_ROUTE_TRIPS2;
 	static {
