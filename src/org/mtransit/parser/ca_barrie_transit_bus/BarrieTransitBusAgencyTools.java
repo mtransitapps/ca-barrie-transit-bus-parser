@@ -1,7 +1,6 @@
 package org.mtransit.parser.ca_barrie_transit_bus;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -23,7 +22,6 @@ import org.mtransit.parser.gtfs.data.GStop;
 import org.mtransit.parser.gtfs.data.GTrip;
 import org.mtransit.parser.gtfs.data.GTripStop;
 import org.mtransit.parser.mt.data.MAgency;
-import org.mtransit.parser.mt.data.MDirectionType;
 import org.mtransit.parser.mt.data.MRoute;
 import org.mtransit.parser.mt.data.MTrip;
 import org.mtransit.parser.mt.data.MTripStop;
@@ -165,26 +163,9 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 		return null;
 	}
 
-	private static final String STOP_ID_777 = "b2740c61-b629-4cdb-871d-fa853a2009fc";
-	private static final String STOP_ID_974 = "2324e78f-c060-41cd-a3c3-80ae7851e7eb";
-
 	private static HashMap<Long, RouteTripSpec> ALL_ROUTE_TRIPS2;
 	static {
 		HashMap<Long, RouteTripSpec> map2 = new HashMap<Long, RouteTripSpec>();
-		map2.put(11L, new RouteTripSpec(11L, //
-				MDirectionType.EAST.intValue(), MTrip.HEADSIGN_TYPE_STRING, "Priscillas Pl", //
-				MDirectionType.WEST.intValue(), MTrip.HEADSIGN_TYPE_STRING, "Pk Pl") //
-				.addTripSort(MDirectionType.EAST.intValue(), //
-						Arrays.asList(new String[] { //
-						STOP_ID_777, // "777", // Park Place
-								STOP_ID_974, // "974", // Priscilla's Place
-						})) //
-				.addTripSort(MDirectionType.WEST.intValue(), //
-						Arrays.asList(new String[] { //
-						STOP_ID_974, // "974", // Priscilla's Place
-								STOP_ID_777, // "777", // Park Place
-						})) //
-				.compileBothTripSort());
 		ALL_ROUTE_TRIPS2 = map2;
 	}
 
@@ -216,6 +197,18 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 	public void setTripHeadsign(MRoute mRoute, MTrip mTrip, GTrip gTrip, GSpec gtfs) {
 		if (ALL_ROUTE_TRIPS2.containsKey(mRoute.getId())) {
 			return; // split
+		}
+		if (mRoute.getId() == 11L) {
+			if (gTrip.getDirectionId() == 0 && gTrip.getTripHeadsign().equals("Priscillas Place")) {
+				mTrip.setHeadsignString("Priscillas Pl", gTrip.getDirectionId());
+				return;
+			} else if (gTrip.getDirectionId() == 1 && gTrip.getTripHeadsign().equals("PP")) {
+				mTrip.setHeadsignString("Pk Pl", gTrip.getDirectionId());
+				return;
+			}
+			System.out.printf("\nUnexpected trip: %s", gTrip);
+			System.exit(-1);
+			return;
 		}
 		GRoute gRoute = gtfs.getRoute(gTrip.getRouteId());
 		String rsn = gRoute.getRouteShortName();
