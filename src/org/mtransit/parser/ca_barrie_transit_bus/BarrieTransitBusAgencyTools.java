@@ -199,14 +199,14 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 			return; // split
 		}
 		if (mRoute.getId() == 11L) {
-			if (gTrip.getDirectionId() == 0 && gTrip.getTripHeadsign().equals("Priscillas Place")) {
+			if (gTrip.getDirectionId() == 1 && gTrip.getTripHeadsign().equals("Priscillas Place")) {
 				mTrip.setHeadsignString("Priscillas Pl", gTrip.getDirectionId());
 				return;
-			} else if (gTrip.getDirectionId() == 1 && gTrip.getTripHeadsign().equals("PP")) {
+			} else if (gTrip.getDirectionId() == 0 && gTrip.getTripHeadsign().equals("PP")) {
 				mTrip.setHeadsignString("Pk Pl", gTrip.getDirectionId());
 				return;
 			}
-			System.out.printf("\nUnexpected trip: %s", gTrip);
+			System.out.printf("\n%s: Unexpected trip: %s\n", mRoute.getShortName(), gTrip);
 			System.exit(-1);
 			return;
 		}
@@ -220,7 +220,7 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 		} else if (B.equals(rsn_letter)) {
 			directionId = 1;
 		} else {
-			System.out.printf("\nUnexpected trip (unexpected rsn: %s): %s", rsn, gTrip);
+			System.out.printf("\n%s: Unexpected trip: %s\n", mRoute.getShortName(), gTrip);
 			System.exit(-1);
 			directionId = -1;
 		}
