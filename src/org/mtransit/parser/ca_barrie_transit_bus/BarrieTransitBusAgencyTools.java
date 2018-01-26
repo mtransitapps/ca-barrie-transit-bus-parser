@@ -242,6 +242,25 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 
 	@Override
 	public int getStopId(GStop gStop) {
-		return Integer.parseInt(gStop.getStopCode()); // use stop code as stop ID
+		String stopCode = gStop.getStopCode();
+		if (Utils.isDigitsOnly(stopCode)) {
+			return Integer.parseInt(stopCode); // use stop code as stop ID
+		}
+		Matcher matcher = DIGITS.matcher(stopCode);
+		if (matcher.find()) {
+			int digits = Integer.parseInt(matcher.group());
+			int stopId;
+			if (stopCode.startsWith("AG ")) {
+				stopId = 100_000;
+			} else {
+				System.out.printf("\nStop doesn't have an ID (start with)! %s\n", gStop);
+				System.exit(-1);
+				return -1;
+			}
+			return stopId + digits;
+		}
+		System.out.printf("\nUnexpected stop ID for %s!\n", gStop);
+		System.exit(-1);
+		return -1;
 	}
 }
