@@ -199,15 +199,15 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 			return; // split
 		}
 		if (mRoute.getId() == 11L) {
-			if (gTrip.getDirectionId() == 1 && gTrip.getTripHeadsign().equals("Priscillas Place")) {
+			if (gTrip.getDirectionId() == 0 && gTrip.getTripHeadsign().equals("Priscillas Place")) {
 				mTrip.setHeadsignString("Priscillas Pl", gTrip.getDirectionId());
 				return;
-			} else if (gTrip.getDirectionId() == 0 && gTrip.getTripHeadsign().equals("PP")) {
+			} else if (gTrip.getDirectionId() == 1 && gTrip.getTripHeadsign().equals("PP")) {
 				mTrip.setHeadsignString("Pk Pl", gTrip.getDirectionId());
 				return;
 			}
-			System.out.printf("\n%s: Unexpected trip: %s\n", mRoute.getShortName(), gTrip);
-			System.out.printf("\n%s: Unexpected gTrip.getDirectionId(): %s\n", mRoute.getShortName(), gTrip.getDirectionId());
+			System.out.printf("\n%s: Unexpected trip: %s", mRoute.getShortName(), gTrip);
+			System.out.printf("\n%s: Unexpected gTrip.getDirectionId(): %s", mRoute.getShortName(), gTrip.getDirectionId());
 			System.out.printf("\n%s: Unexpected gTrip.getTripHeadsign(): %s\n", mRoute.getShortName(), gTrip.getTripHeadsign());
 			System.exit(-1);
 			return;
