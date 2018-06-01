@@ -193,17 +193,48 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 		return super.splitTripStop(mRoute, gTrip, gTripStop, splitTrips, routeGTFS);
 	}
 
+	private int priscillasPlaceId = -1;
+	private int pkPlId = -1;
+
 	@Override
 	public void setTripHeadsign(MRoute mRoute, MTrip mTrip, GTrip gTrip, GSpec gtfs) {
 		if (ALL_ROUTE_TRIPS2.containsKey(mRoute.getId())) {
 			return; // split
 		}
 		if (mRoute.getId() == 11L) {
-			if (gTrip.getDirectionId() == 0 && gTrip.getTripHeadsign().equals("Priscillas Place")) {
-				mTrip.setHeadsignString("Priscillas Pl", gTrip.getDirectionId());
+			if (gTrip.getTripHeadsign().equals("Priscillas Place")) {
+				if (this.priscillasPlaceId < 0) {
+					if (this.pkPlId < 0) {
+						this.priscillasPlaceId = gTrip.getDirectionId();
+					} else if (this.pkPlId == 0) {
+						this.priscillasPlaceId = 1;
+					} else if (this.pkPlId == 1) {
+						this.priscillasPlaceId = 0;
+					} else {
+						System.out.printf("\n%s: Unexpected trip: %s", mRoute.getShortName(), gTrip);
+						System.out.printf("\n%s: Unexpected this.pkPlId: %s", mRoute.getShortName(), this.pkPlId);
+						System.out.printf("\n%s: Unexpected this.priscillasPlaceId: %s", mRoute.getShortName(), this.priscillasPlaceId);
+						System.exit(-1);
+					}
+				}
+				mTrip.setHeadsignString("Priscillas Pl", this.priscillasPlaceId);
 				return;
-			} else if (gTrip.getDirectionId() == 1 && gTrip.getTripHeadsign().equals("PP")) {
-				mTrip.setHeadsignString("Pk Pl", gTrip.getDirectionId());
+			} else if (gTrip.getTripHeadsign().equals("PP")) {
+				if (this.pkPlId < 0) {
+					if (this.priscillasPlaceId < 0) {
+						this.pkPlId = gTrip.getDirectionId();
+					} else if (this.priscillasPlaceId == 0) {
+						this.pkPlId = 1;
+					} else if (this.priscillasPlaceId == 1) {
+						this.pkPlId = 0;
+					} else {
+						System.out.printf("\n%s: Unexpected trip: %s", mRoute.getShortName(), gTrip);
+						System.out.printf("\n%s: Unexpected this.priscillasPlaceId: %s", mRoute.getShortName(), this.priscillasPlaceId);
+						System.out.printf("\n%s: Unexpected this.pkPlId: %s", mRoute.getShortName(), this.pkPlId);
+						System.exit(-1);
+					}
+				}
+				mTrip.setHeadsignString("Pk Pl", this.pkPlId);
 				return;
 			}
 			System.out.printf("\n%s: Unexpected trip: %s", mRoute.getShortName(), gTrip);
