@@ -1,6 +1,7 @@
 package org.mtransit.parser.ca_barrie_transit_bus;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -219,6 +220,23 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 				}
 				mTrip.setHeadsignString("Priscillas Pl", this.priscillasPlaceId);
 				return;
+			} else if (gTrip.getTripHeadsign().equals("A Rec to Lockhart")) {
+				if (this.priscillasPlaceId < 0) {
+					if (this.pkPlId < 0) {
+						this.priscillasPlaceId = gTrip.getDirectionId();
+					} else if (this.pkPlId == 0) {
+						this.priscillasPlaceId = 1;
+					} else if (this.pkPlId == 1) {
+						this.priscillasPlaceId = 0;
+					} else {
+						System.out.printf("\n%s: Unexpected trip: %s", mRoute.getShortName(), gTrip);
+						System.out.printf("\n%s: Unexpected this.pkPlId: %s", mRoute.getShortName(), this.pkPlId);
+						System.out.printf("\n%s: Unexpected this.priscillasPlaceId: %s", mRoute.getShortName(), this.priscillasPlaceId);
+						System.exit(-1);
+					}
+				}
+				mTrip.setHeadsignString("Lockhart", this.priscillasPlaceId);
+				return;
 			} else if (gTrip.getTripHeadsign().equals("PP")) {
 				if (this.pkPlId < 0) {
 					if (this.priscillasPlaceId < 0) {
@@ -235,6 +253,23 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 					}
 				}
 				mTrip.setHeadsignString("Pk Pl", this.pkPlId);
+				return;
+			} else if (gTrip.getTripHeadsign().equals("Allendale Rec")) {
+				if (this.pkPlId < 0) {
+					if (this.priscillasPlaceId < 0) {
+						this.pkPlId = gTrip.getDirectionId();
+					} else if (this.priscillasPlaceId == 0) {
+						this.pkPlId = 1;
+					} else if (this.priscillasPlaceId == 1) {
+						this.pkPlId = 0;
+					} else {
+						System.out.printf("\n%s: Unexpected trip: %s", mRoute.getShortName(), gTrip);
+						System.out.printf("\n%s: Unexpected this.priscillasPlaceId: %s", mRoute.getShortName(), this.priscillasPlaceId);
+						System.out.printf("\n%s: Unexpected this.pkPlId: %s", mRoute.getShortName(), this.pkPlId);
+						System.exit(-1);
+					}
+				}
+				mTrip.setHeadsignString("Allendale Rec", this.pkPlId);
 				return;
 			}
 			System.out.printf("\n%s: Unexpected trip: %s", mRoute.getShortName(), gTrip);
@@ -258,6 +293,29 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 			directionId = -1;
 		}
 		mTrip.setHeadsignString(cleanTripHeadsign(tripHeadsign), directionId);
+	}
+
+	@Override
+	public boolean mergeHeadsign(MTrip mTrip, MTrip mTripToMerge) {
+		List<String> headsignsValues = Arrays.asList(mTrip.getHeadsignValue(), mTripToMerge.getHeadsignValue());
+		if (mTrip.getRouteId() == 11L) {
+			if (Arrays.asList( //
+					"Pk Pl", //
+					"Allendale Rec" //
+			).containsAll(headsignsValues)) {
+				mTrip.setHeadsignString("Allendale Rec", mTrip.getHeadsignId());
+				return true;
+			} else if (Arrays.asList( //
+					"Priscillas Pl", //
+					"Lockhart" //
+			).containsAll(headsignsValues)) {
+				mTrip.setHeadsignString("Lockhart", mTrip.getHeadsignId());
+				return true;
+			}
+		}
+		System.out.printf("\nUnexpected trips to merge: %s & %s!\n", mTrip, mTripToMerge);
+		System.exit(-1);
+		return false;
 	}
 
 	@Override
