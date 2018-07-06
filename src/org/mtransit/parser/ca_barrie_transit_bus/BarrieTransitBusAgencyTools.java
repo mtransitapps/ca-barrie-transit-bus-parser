@@ -106,7 +106,7 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 	public String getRouteShortName(GRoute gRoute) {
 		Matcher matcher = DIGITS.matcher(gRoute.getRouteShortName());
 		if (matcher.find()) {
-			return matcher.group();
+			return matcher.group(); // merge routes
 		}
 		System.out.println("Unexpected route short name " + gRoute);
 		System.exit(-1);
