@@ -254,7 +254,7 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 				}
 				mTrip.setHeadsignString("Pk Pl", this.pkPlId);
 				return;
-			} else if (gTrip.getTripHeadsign().equals("Allendale Rec")) {
+			} else if (gTrip.getTripHeadsign().equals("Allandale Rec")) {
 				if (this.pkPlId < 0) {
 					if (this.priscillasPlaceId < 0) {
 						this.pkPlId = gTrip.getDirectionId();
@@ -269,7 +269,7 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 						System.exit(-1);
 					}
 				}
-				mTrip.setHeadsignString("Allendale Rec", this.pkPlId);
+				mTrip.setHeadsignString("Allandale Rec", this.pkPlId);
 				return;
 			}
 			System.out.printf("\n%s: Unexpected trip: %s", mRoute.getShortName(), gTrip);
