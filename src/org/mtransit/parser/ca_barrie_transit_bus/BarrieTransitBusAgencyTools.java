@@ -92,6 +92,8 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 
 	private static final String A = "A";
 	private static final String B = "B";
+	private static final String C = "C";
+	private static final String D = "D";
 
 	@Override
 	public long getRouteId(GRoute gRoute) {
@@ -121,8 +123,19 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 	@Override
 	public String getRouteLongName(GRoute gRoute) {
 		String routeLongName = gRoute.getRouteLongName();
-		routeLongName = routeLongName.toLowerCase(Locale.ENGLISH);
+		if (Utils.isUppercaseOnly(routeLongName, true, true)) {
+			routeLongName = routeLongName.toLowerCase(Locale.ENGLISH);
+		}
 		return CleanUtils.cleanLabel(routeLongName);
+	}
+
+	@Override
+	public boolean mergeRouteLongName(MRoute mRoute, MRoute mRouteToMerge) {
+		if (mRoute.getId() == 100L) {
+			mRoute.setLongName("Georgian Express");
+			return true;
+		}
+		return super.mergeRouteLongName(mRoute, mRouteToMerge);
 	}
 
 	private static final String AGENCY_COLOR_BLUE = "336699"; // BLUE (from web site CSS)
@@ -133,17 +146,6 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 		return AGENCY_COLOR;
 	}
 
-	private static final String COLOR_EC008C = "EC008C";
-	private static final String COLOR_ED1C24 = "ED1C24";
-	private static final String COLOR_0089CF = "0089CF";
-	private static final String COLOR_918BC3 = "918BC3";
-	private static final String COLOR_8ED8F8 = "8ED8F8";
-	private static final String COLOR_B2D235 = "B2D235";
-	private static final String COLOR_F58220 = "F58220";
-	private static final String COLOR_000000 = "000000";
-	private static final String COLOR_007236 = "007236";
-	private static final String COLOR_FFFF00 = "FFFF00";
-
 	@Override
 	public String getRouteColor(GRoute gRoute) {
 		Matcher matcher = DIGITS.matcher(gRoute.getRouteShortName());
@@ -151,16 +153,17 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 			int routeId = Integer.parseInt(matcher.group());
 			switch (routeId) {
 			// @formatter:off
-			case 1: return COLOR_EC008C;
-			case 2: return COLOR_ED1C24;
-			case 3: return COLOR_0089CF;
-			case 4: return COLOR_918BC3;
-			case 5: return COLOR_8ED8F8;
-			case 6: return COLOR_B2D235;
-			case 7: return COLOR_F58220;
-			case 8: return COLOR_000000;
-			case 11: return COLOR_FFFF00;
-			case 90: return COLOR_007236;
+			case 1: return "EC008C";
+			case 2: return "ED1C24";
+			case 3: return "0089CF";
+			case 4: return "918BC3";
+			case 5: return "8ED8F8";
+			case 6: return "B2D235";
+			case 7: return "F58220";
+			case 8: return "000000";
+			case 11: return "FFFF00";
+			case 90: return "007236";
+			case 100: return "57AD40";
 			// @formatter:on
 			}
 		}
@@ -288,9 +291,11 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 		String rsn_letter = rsn.substring(rsn.length() - 1, rsn.length());
 		String tripHeadsign = rsn_letter + " " + getRouteLongName(gRoute);
 		int directionId;
-		if (A.equals(rsn_letter)) {
+		if (A.equals(rsn_letter) || //
+				C.equals(rsn_letter)) {
 			directionId = 0;
-		} else if (B.equals(rsn_letter)) {
+		} else if (B.equals(rsn_letter) || //
+				D.equals(rsn_letter)) {
 			directionId = 1;
 		} else {
 			System.out.printf("\n%s: Unexpected trip: %s\n", mRoute.getShortName(), gTrip);
@@ -317,14 +322,43 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 				mTrip.setHeadsignString("Lockhart", mTrip.getHeadsignId());
 				return true;
 			}
+		} else if (mTrip.getRouteId() == 100L) {
+			if (Arrays.asList( //
+					"A " + "GC", //
+					"C " + "Kozlov Mall", //
+					"Kozlov Mall" // ++
+			).containsAll(headsignsValues)) {
+				mTrip.setHeadsignString("Kozlov Mall", mTrip.getHeadsignId());
+				return true;
+			}
+			if (Arrays.asList( //
+					"B " + "DBT", //
+					"D " + "DBT", //
+					"DBT" // ++
+			).containsAll(headsignsValues)) {
+				mTrip.setHeadsignString("DBT", mTrip.getHeadsignId());
+				return true;
+			}
 		}
 		System.out.printf("\nUnexpected trips to merge: %s & %s!\n", mTrip, mTripToMerge);
 		System.exit(-1);
 		return false;
 	}
 
+	private static final Pattern STARTS_WITH_TO = Pattern.compile("(([A-Z])?(.*)( to )(.*))", Pattern.CASE_INSENSITIVE);
+	private static final String STARTS_WITH_TO_REPLACEMENT = "$2 $5";
+
+	private static final Pattern DBT_ = Pattern.compile("((^|\\W){1}(dbt)(\\W|$){1})", Pattern.CASE_INSENSITIVE);
+	private static final String DBT_REPLACEMENT = "$2" + "DBT" + "$4";
+
+	private static final Pattern GC_ = Pattern.compile("((^|\\W){1}(gc)(\\W|$){1})", Pattern.CASE_INSENSITIVE);
+	private static final String GC_REPLACEMENT = "$2" + "GC" + "$4";
+
 	@Override
 	public String cleanTripHeadsign(String tripHeadsign) {
+		tripHeadsign = STARTS_WITH_TO.matcher(tripHeadsign).replaceAll(STARTS_WITH_TO_REPLACEMENT);
+		tripHeadsign = DBT_.matcher(tripHeadsign).replaceAll(DBT_REPLACEMENT);
+		tripHeadsign = GC_.matcher(tripHeadsign).replaceAll(GC_REPLACEMENT);
 		tripHeadsign = CleanUtils.cleanStreetTypes(tripHeadsign);
 		return CleanUtils.cleanLabel(tripHeadsign);
 	}
