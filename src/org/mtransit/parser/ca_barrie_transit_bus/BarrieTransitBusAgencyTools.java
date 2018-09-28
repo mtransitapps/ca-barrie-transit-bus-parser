@@ -325,7 +325,9 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 		} else if (mTrip.getRouteId() == 100L) {
 			if (Arrays.asList( //
 					"A " + "GC", //
+					"A " + "G.C.", //
 					"C " + "Kozlov Mall", //
+					"C " + "G.M. Via G.C.", //
 					"Kozlov Mall" // ++
 			).containsAll(headsignsValues)) {
 				mTrip.setHeadsignString("Kozlov Mall", mTrip.getHeadsignId());
@@ -333,10 +335,12 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 			}
 			if (Arrays.asList( //
 					"B " + "DBT", //
+					"B " + "D.T.", //
 					"D " + "DBT", //
+					"D " + "D.T. Via G.C.",//
 					"DBT" // ++
 			).containsAll(headsignsValues)) {
-				mTrip.setHeadsignString("DBT", mTrip.getHeadsignId());
+				mTrip.setHeadsignString("DBT", mTrip.getHeadsignId()); // Downtown Barrie Terminal
 				return true;
 			}
 		}
