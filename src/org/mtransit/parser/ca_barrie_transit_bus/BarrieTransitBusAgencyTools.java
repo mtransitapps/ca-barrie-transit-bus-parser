@@ -287,7 +287,7 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 			return;
 		}
 		GRoute gRoute = gtfs.getRoute(gTrip.getRouteId());
-		String rsn = gRoute.getRouteShortName();
+		String rsn = gRoute.getRouteShortName().trim();
 		String rsn_letter = rsn.substring(rsn.length() - 1, rsn.length());
 		String tripHeadsign = rsn_letter + " " + getRouteLongName(gRoute);
 		int directionId;
@@ -334,6 +334,14 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 				return true;
 			}
 			if (Arrays.asList( //
+					"A " + "Red Express", //
+					"C " + "Red Express",//
+					"Red Express" // ++
+			).containsAll(headsignsValues)) {
+				mTrip.setHeadsignString("Red Express", mTrip.getHeadsignId());
+				return true;
+			}
+			if (Arrays.asList( //
 					"B " + "DBT", //
 					"B " + "D.T.", //
 					"D " + "DBT", //
@@ -341,6 +349,14 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 					"DBT" // ++
 			).containsAll(headsignsValues)) {
 				mTrip.setHeadsignString("DBT", mTrip.getHeadsignId()); // Downtown Barrie Terminal
+				return true;
+			}
+			if (Arrays.asList( //
+					"B " + "Blue Express", //
+					"D " + "Blue Express",//
+					"Blue Express" // ++
+			).containsAll(headsignsValues)) {
+				mTrip.setHeadsignString("Blue Express", mTrip.getHeadsignId());
 				return true;
 			}
 		}
