@@ -52,7 +52,7 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 		long start = System.currentTimeMillis();
 		this.serviceIds = extractUsefulServiceIds(args, this, true);
 		super.start(args);
-		MTLog.log("Generating Barrie Transit bus data... DONE in %s.\n", Utils.getPrettyDuration(System.currentTimeMillis() - start));
+		MTLog.log("Generating Barrie Transit bus data... DONE in %s.", Utils.getPrettyDuration(System.currentTimeMillis() - start));
 	}
 
 	@Override
@@ -279,7 +279,7 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 			}
 			MTLog.log("%s: Unexpected trip: %s", mRoute.getShortName(), gTrip);
 			MTLog.log("%s: Unexpected gTrip.getDirectionId(): %s", mRoute.getShortName(), gTrip.getDirectionId());
-			MTLog.logFatal("%s: Unexpected gTrip.getTripHeadsign(): %s\n", mRoute.getShortName(), gTrip.getTripHeadsign());
+			MTLog.logFatal("%s: Unexpected gTrip.getTripHeadsign(): %s", mRoute.getShortName(), gTrip.getTripHeadsign());
 			return;
 		}
 		GRoute gRoute = gtfs.getRoute(gTrip.getRouteId());
@@ -294,7 +294,7 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 				D.equals(rsn_letter)) {
 			directionId = 1;
 		} else {
-			MTLog.logFatal("%s: Unexpected trip: %s\n", mRoute.getShortName(), gTrip);
+			MTLog.logFatal("%s: Unexpected trip: %s", mRoute.getShortName(), gTrip);
 			return;
 		}
 		mTrip.setHeadsignString(cleanTripHeadsign(tripHeadsign), directionId);
@@ -355,7 +355,7 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 				return true;
 			}
 		}
-		MTLog.logFatal("Unexpected trips to merge: %s & %s!\n", mTrip, mTripToMerge);
+		MTLog.logFatal("Unexpected trips to merge: %s & %s!", mTrip, mTripToMerge);
 		return false;
 	}
 
@@ -397,12 +397,12 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 			if (stopCode.startsWith("AG ")) {
 				stopId = 100_000;
 			} else {
-				MTLog.logFatal("Stop doesn't have an ID (start with)! %s\n", gStop);
+				MTLog.logFatal("Stop doesn't have an ID (start with)! %s", gStop);
 				return -1;
 			}
 			return stopId + digits;
 		}
-		MTLog.logFatal("Unexpected stop ID for %s!\n", gStop);
+		MTLog.logFatal("Unexpected stop ID for %s!", gStop);
 		return -1;
 	}
 }
