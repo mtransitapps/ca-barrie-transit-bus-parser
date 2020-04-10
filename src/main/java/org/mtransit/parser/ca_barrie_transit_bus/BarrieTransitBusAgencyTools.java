@@ -1,16 +1,8 @@
 package org.mtransit.parser.ca_barrie_transit_bus;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.mtransit.parser.CleanUtils;
 import org.mtransit.parser.DefaultAgencyTools;
+import org.mtransit.parser.MTLog;
 import org.mtransit.parser.Pair;
 import org.mtransit.parser.SplitUtils;
 import org.mtransit.parser.SplitUtils.RouteTripSpec;
@@ -26,6 +18,15 @@ import org.mtransit.parser.mt.data.MAgency;
 import org.mtransit.parser.mt.data.MRoute;
 import org.mtransit.parser.mt.data.MTrip;
 import org.mtransit.parser.mt.data.MTripStop;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 // http://www.barrie.ca/Living/Getting%20Around/BarrieTransit/Pages/Barrie-GTFS.aspx
 // http://transit.cityofbarriesites.com/files/google_transit.zip
@@ -47,11 +48,11 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 
 	@Override
 	public void start(String[] args) {
-		System.out.printf("\nGenerating Barrie Transit bus data...");
+		MTLog.log("Generating Barrie Transit bus data...");
 		long start = System.currentTimeMillis();
-		this.serviceIds = extractUsefulServiceIds(args, this);
+		this.serviceIds = extractUsefulServiceIds(args, this, true);
 		super.start(args);
-		System.out.printf("\nGenerating Barrie Transit bus data... DONE in %s.\n", Utils.getPrettyDuration(System.currentTimeMillis() - start));
+		MTLog.log("Generating Barrie Transit bus data... DONE in %s.\n", Utils.getPrettyDuration(System.currentTimeMillis() - start));
 	}
 
 	@Override
@@ -104,9 +105,8 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 		if (matcher.find()) {
 			return Long.parseLong(matcher.group()); // merge routes
 		}
-		System.out.println("Unexpected route ID " + gRoute);
-		System.exit(-1);
-		return -1l;
+		MTLog.logFatal("Unexpected route ID %s!", gRoute);
+		return -1L;
 	}
 
 	@Override
@@ -115,8 +115,7 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 		if (matcher.find()) {
 			return matcher.group(); // merge routes
 		}
-		System.out.println("Unexpected route short name " + gRoute);
-		System.exit(-1);
+		MTLog.logFatal("Unexpected route short name for %s!", gRoute);
 		return null;
 	}
 
@@ -167,14 +166,15 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 			// @formatter:on
 			}
 		}
-		System.out.printf("\nUnexpected route color %s!", gRoute);
-		System.exit(-1);
+		MTLog.logFatal("Unexpected route color %s!", gRoute);
 		return null;
 	}
 
 	private static HashMap<Long, RouteTripSpec> ALL_ROUTE_TRIPS2;
+
 	static {
-		HashMap<Long, RouteTripSpec> map2 = new HashMap<Long, RouteTripSpec>();
+		//noinspection UnnecessaryLocalVariable
+		HashMap<Long, RouteTripSpec> map2 = new HashMap<>();
 		ALL_ROUTE_TRIPS2 = map2;
 	}
 
@@ -211,7 +211,8 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 			return; // split
 		}
 		if (mRoute.getId() == 11L) {
-			if (gTrip.getTripHeadsign().equals("Priscillas Place")) {
+			switch (gTrip.getTripHeadsign()) {
+			case "Priscillas Place":
 				if (this.priscillasPlaceId < 0) {
 					if (this.pkPlId < 0) {
 						this.priscillasPlaceId = gTrip.getDirectionId();
@@ -220,15 +221,14 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 					} else if (this.pkPlId == 1) {
 						this.priscillasPlaceId = 0;
 					} else {
-						System.out.printf("\n%s: Unexpected trip: %s", mRoute.getShortName(), gTrip);
-						System.out.printf("\n%s: Unexpected this.pkPlId: %s", mRoute.getShortName(), this.pkPlId);
-						System.out.printf("\n%s: Unexpected this.priscillasPlaceId: %s", mRoute.getShortName(), this.priscillasPlaceId);
-						System.exit(-1);
+						MTLog.log("%s: Unexpected trip: %s", mRoute.getShortName(), gTrip);
+						MTLog.log("%s: Unexpected this.pkPlId: %s", mRoute.getShortName(), this.pkPlId);
+						MTLog.logFatal("%s: Unexpected this.priscillasPlaceId: %s", mRoute.getShortName(), this.priscillasPlaceId);
 					}
 				}
 				mTrip.setHeadsignString("Priscillas Pl", this.priscillasPlaceId);
 				return;
-			} else if (gTrip.getTripHeadsign().equals("A Rec to Lockhart")) {
+			case "A Rec to Lockhart":
 				if (this.priscillasPlaceId < 0) {
 					if (this.pkPlId < 0) {
 						this.priscillasPlaceId = gTrip.getDirectionId();
@@ -237,15 +237,14 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 					} else if (this.pkPlId == 1) {
 						this.priscillasPlaceId = 0;
 					} else {
-						System.out.printf("\n%s: Unexpected trip: %s", mRoute.getShortName(), gTrip);
-						System.out.printf("\n%s: Unexpected this.pkPlId: %s", mRoute.getShortName(), this.pkPlId);
-						System.out.printf("\n%s: Unexpected this.priscillasPlaceId: %s", mRoute.getShortName(), this.priscillasPlaceId);
-						System.exit(-1);
+						MTLog.log("%s: Unexpected trip: %s", mRoute.getShortName(), gTrip);
+						MTLog.log("%s: Unexpected this.pkPlId: %s", mRoute.getShortName(), this.pkPlId);
+						MTLog.logFatal("%s: Unexpected this.priscillasPlaceId: %s", mRoute.getShortName(), this.priscillasPlaceId);
 					}
 				}
 				mTrip.setHeadsignString("Lockhart", this.priscillasPlaceId);
 				return;
-			} else if (gTrip.getTripHeadsign().equals("PP")) {
+			case "PP":
 				if (this.pkPlId < 0) {
 					if (this.priscillasPlaceId < 0) {
 						this.pkPlId = gTrip.getDirectionId();
@@ -254,15 +253,14 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 					} else if (this.priscillasPlaceId == 1) {
 						this.pkPlId = 0;
 					} else {
-						System.out.printf("\n%s: Unexpected trip: %s", mRoute.getShortName(), gTrip);
-						System.out.printf("\n%s: Unexpected this.priscillasPlaceId: %s", mRoute.getShortName(), this.priscillasPlaceId);
-						System.out.printf("\n%s: Unexpected this.pkPlId: %s", mRoute.getShortName(), this.pkPlId);
-						System.exit(-1);
+						MTLog.log("%s: Unexpected trip: %s", mRoute.getShortName(), gTrip);
+						MTLog.log("%s: Unexpected this.priscillasPlaceId: %s", mRoute.getShortName(), this.priscillasPlaceId);
+						MTLog.logFatal("%s: Unexpected this.pkPlId: %s", mRoute.getShortName(), this.pkPlId);
 					}
 				}
 				mTrip.setHeadsignString("Pk Pl", this.pkPlId);
 				return;
-			} else if (gTrip.getTripHeadsign().equals("Allandale Rec")) {
+			case "Allandale Rec":
 				if (this.pkPlId < 0) {
 					if (this.priscillasPlaceId < 0) {
 						this.pkPlId = gTrip.getDirectionId();
@@ -271,24 +269,22 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 					} else if (this.priscillasPlaceId == 1) {
 						this.pkPlId = 0;
 					} else {
-						System.out.printf("\n%s: Unexpected trip: %s", mRoute.getShortName(), gTrip);
-						System.out.printf("\n%s: Unexpected this.priscillasPlaceId: %s", mRoute.getShortName(), this.priscillasPlaceId);
-						System.out.printf("\n%s: Unexpected this.pkPlId: %s", mRoute.getShortName(), this.pkPlId);
-						System.exit(-1);
+						MTLog.log("%s: Unexpected trip: %s", mRoute.getShortName(), gTrip);
+						MTLog.log("%s: Unexpected this.priscillasPlaceId: %s", mRoute.getShortName(), this.priscillasPlaceId);
+						MTLog.logFatal("%s: Unexpected this.pkPlId: %s", mRoute.getShortName(), this.pkPlId);
 					}
 				}
 				mTrip.setHeadsignString("Allandale Rec", this.pkPlId);
 				return;
 			}
-			System.out.printf("\n%s: Unexpected trip: %s", mRoute.getShortName(), gTrip);
-			System.out.printf("\n%s: Unexpected gTrip.getDirectionId(): %s", mRoute.getShortName(), gTrip.getDirectionId());
-			System.out.printf("\n%s: Unexpected gTrip.getTripHeadsign(): %s\n", mRoute.getShortName(), gTrip.getTripHeadsign());
-			System.exit(-1);
+			MTLog.log("%s: Unexpected trip: %s", mRoute.getShortName(), gTrip);
+			MTLog.log("%s: Unexpected gTrip.getDirectionId(): %s", mRoute.getShortName(), gTrip.getDirectionId());
+			MTLog.logFatal("%s: Unexpected gTrip.getTripHeadsign(): %s\n", mRoute.getShortName(), gTrip.getTripHeadsign());
 			return;
 		}
 		GRoute gRoute = gtfs.getRoute(gTrip.getRouteId());
 		String rsn = gRoute.getRouteShortName().trim();
-		String rsn_letter = rsn.substring(rsn.length() - 1, rsn.length());
+		String rsn_letter = rsn.substring(rsn.length() - 1);
 		String tripHeadsign = rsn_letter + " " + getRouteLongName(gRoute);
 		int directionId;
 		if (A.equals(rsn_letter) || //
@@ -298,9 +294,8 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 				D.equals(rsn_letter)) {
 			directionId = 1;
 		} else {
-			System.out.printf("\n%s: Unexpected trip: %s\n", mRoute.getShortName(), gTrip);
-			System.exit(-1);
-			directionId = -1;
+			MTLog.logFatal("%s: Unexpected trip: %s\n", mRoute.getShortName(), gTrip);
+			return;
 		}
 		mTrip.setHeadsignString(cleanTripHeadsign(tripHeadsign), directionId);
 	}
@@ -360,19 +355,18 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 				return true;
 			}
 		}
-		System.out.printf("\nUnexpected trips to merge: %s & %s!\n", mTrip, mTripToMerge);
-		System.exit(-1);
+		MTLog.logFatal("Unexpected trips to merge: %s & %s!\n", mTrip, mTripToMerge);
 		return false;
 	}
 
 	private static final Pattern STARTS_WITH_TO = Pattern.compile("(([A-Z])?(.*)( to )(.*))", Pattern.CASE_INSENSITIVE);
 	private static final String STARTS_WITH_TO_REPLACEMENT = "$2 $5";
 
-	private static final Pattern DBT_ = Pattern.compile("((^|\\W){1}(dbt)(\\W|$){1})", Pattern.CASE_INSENSITIVE);
-	private static final String DBT_REPLACEMENT = "$2" + "DBT" + "$4";
+	private static final Pattern DBT_ = CleanUtils.cleanWords("dbt");
+	private static final String DBT_REPLACEMENT = CleanUtils.cleanWordsReplacement("DBT");
 
-	private static final Pattern GC_ = Pattern.compile("((^|\\W){1}(gc)(\\W|$){1})", Pattern.CASE_INSENSITIVE);
-	private static final String GC_REPLACEMENT = "$2" + "GC" + "$4";
+	private static final Pattern GC_ = CleanUtils.cleanWords("gc");
+	private static final String GC_REPLACEMENT = CleanUtils.cleanWordsReplacement("GC");
 
 	@Override
 	public String cleanTripHeadsign(String tripHeadsign) {
@@ -403,14 +397,12 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 			if (stopCode.startsWith("AG ")) {
 				stopId = 100_000;
 			} else {
-				System.out.printf("\nStop doesn't have an ID (start with)! %s\n", gStop);
-				System.exit(-1);
+				MTLog.logFatal("Stop doesn't have an ID (start with)! %s\n", gStop);
 				return -1;
 			}
 			return stopId + digits;
 		}
-		System.out.printf("\nUnexpected stop ID for %s!\n", gStop);
-		System.exit(-1);
+		MTLog.logFatal("Unexpected stop ID for %s!\n", gStop);
 		return -1;
 	}
 }
