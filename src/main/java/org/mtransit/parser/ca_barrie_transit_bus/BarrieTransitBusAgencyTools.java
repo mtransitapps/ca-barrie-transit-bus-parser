@@ -202,85 +202,10 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 		return super.splitTripStop(mRoute, gTrip, gTripStop, splitTrips, routeGTFS);
 	}
 
-	private int priscillasPlaceId = -1;
-	private int pkPlId = -1;
-
 	@Override
 	public void setTripHeadsign(MRoute mRoute, MTrip mTrip, GTrip gTrip, GSpec gtfs) {
 		if (ALL_ROUTE_TRIPS2.containsKey(mRoute.getId())) {
 			return; // split
-		}
-		if (mRoute.getId() == 11L) {
-			switch (gTrip.getTripHeadsign()) {
-			case "Priscillas Place":
-				if (this.priscillasPlaceId < 0) {
-					if (this.pkPlId < 0) {
-						this.priscillasPlaceId = gTrip.getDirectionId();
-					} else if (this.pkPlId == 0) {
-						this.priscillasPlaceId = 1;
-					} else if (this.pkPlId == 1) {
-						this.priscillasPlaceId = 0;
-					} else {
-						MTLog.log("%s: Unexpected trip: %s", mRoute.getShortName(), gTrip);
-						MTLog.log("%s: Unexpected this.pkPlId: %s", mRoute.getShortName(), this.pkPlId);
-						MTLog.logFatal("%s: Unexpected this.priscillasPlaceId: %s", mRoute.getShortName(), this.priscillasPlaceId);
-					}
-				}
-				mTrip.setHeadsignString("Priscillas Pl", this.priscillasPlaceId);
-				return;
-			case "A Rec to Lockhart":
-				if (this.priscillasPlaceId < 0) {
-					if (this.pkPlId < 0) {
-						this.priscillasPlaceId = gTrip.getDirectionId();
-					} else if (this.pkPlId == 0) {
-						this.priscillasPlaceId = 1;
-					} else if (this.pkPlId == 1) {
-						this.priscillasPlaceId = 0;
-					} else {
-						MTLog.log("%s: Unexpected trip: %s", mRoute.getShortName(), gTrip);
-						MTLog.log("%s: Unexpected this.pkPlId: %s", mRoute.getShortName(), this.pkPlId);
-						MTLog.logFatal("%s: Unexpected this.priscillasPlaceId: %s", mRoute.getShortName(), this.priscillasPlaceId);
-					}
-				}
-				mTrip.setHeadsignString("Lockhart", this.priscillasPlaceId);
-				return;
-			case "PP":
-				if (this.pkPlId < 0) {
-					if (this.priscillasPlaceId < 0) {
-						this.pkPlId = gTrip.getDirectionId();
-					} else if (this.priscillasPlaceId == 0) {
-						this.pkPlId = 1;
-					} else if (this.priscillasPlaceId == 1) {
-						this.pkPlId = 0;
-					} else {
-						MTLog.log("%s: Unexpected trip: %s", mRoute.getShortName(), gTrip);
-						MTLog.log("%s: Unexpected this.priscillasPlaceId: %s", mRoute.getShortName(), this.priscillasPlaceId);
-						MTLog.logFatal("%s: Unexpected this.pkPlId: %s", mRoute.getShortName(), this.pkPlId);
-					}
-				}
-				mTrip.setHeadsignString("Pk Pl", this.pkPlId);
-				return;
-			case "Allandale Rec":
-				if (this.pkPlId < 0) {
-					if (this.priscillasPlaceId < 0) {
-						this.pkPlId = gTrip.getDirectionId();
-					} else if (this.priscillasPlaceId == 0) {
-						this.pkPlId = 1;
-					} else if (this.priscillasPlaceId == 1) {
-						this.pkPlId = 0;
-					} else {
-						MTLog.log("%s: Unexpected trip: %s", mRoute.getShortName(), gTrip);
-						MTLog.log("%s: Unexpected this.priscillasPlaceId: %s", mRoute.getShortName(), this.priscillasPlaceId);
-						MTLog.logFatal("%s: Unexpected this.pkPlId: %s", mRoute.getShortName(), this.pkPlId);
-					}
-				}
-				mTrip.setHeadsignString("Allandale Rec", this.pkPlId);
-				return;
-			}
-			MTLog.log("%s: Unexpected trip: %s", mRoute.getShortName(), gTrip);
-			MTLog.log("%s: Unexpected gTrip.getDirectionId(): %s", mRoute.getShortName(), gTrip.getDirectionId());
-			MTLog.logFatal("%s: Unexpected gTrip.getTripHeadsign(): %s", mRoute.getShortName(), gTrip.getTripHeadsign());
-			return;
 		}
 		GRoute gRoute = gtfs.getRoute(gTrip.getRouteId());
 		String rsn = gRoute.getRouteShortName().trim();
