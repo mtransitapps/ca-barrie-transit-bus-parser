@@ -1,5 +1,7 @@
 package org.mtransit.parser.ca_barrie_transit_bus;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.mtransit.parser.CleanUtils;
 import org.mtransit.parser.DefaultAgencyTools;
 import org.mtransit.parser.MTLog;
@@ -34,7 +36,7 @@ import java.util.regex.Pattern;
 // http://www.myridebarrie.ca/gtfs/google_transit.zip
 public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 
-	public static void main(String[] args) {
+	public static void main(@Nullable String[] args) {
 		if (args == null || args.length == 0) {
 			args = new String[3];
 			args[0] = "input/gtfs.zip";
@@ -44,13 +46,13 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 		new BarrieTransitBusAgencyTools().start(args);
 	}
 
-	private HashSet<String> serviceIds;
+	private HashSet<Integer> serviceIds;
 
 	@Override
-	public void start(String[] args) {
+	public void start(@NotNull String[] args) {
 		MTLog.log("Generating Barrie Transit bus data...");
 		long start = System.currentTimeMillis();
-		this.serviceIds = extractUsefulServiceIds(args, this, true);
+		this.serviceIds = extractUsefulServiceIdInts(args, this, true);
 		super.start(args);
 		MTLog.log("Generating Barrie Transit bus data... DONE in %s.", Utils.getPrettyDuration(System.currentTimeMillis() - start));
 	}
@@ -61,29 +63,30 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 	}
 
 	@Override
-	public boolean excludeCalendar(GCalendar gCalendar) {
+	public boolean excludeCalendar(@NotNull GCalendar gCalendar) {
 		if (this.serviceIds != null) {
-			return excludeUselessCalendar(gCalendar, this.serviceIds);
+			return excludeUselessCalendarInt(gCalendar, this.serviceIds);
 		}
 		return super.excludeCalendar(gCalendar);
 	}
 
 	@Override
-	public boolean excludeCalendarDate(GCalendarDate gCalendarDates) {
+	public boolean excludeCalendarDate(@NotNull GCalendarDate gCalendarDates) {
 		if (this.serviceIds != null) {
-			return excludeUselessCalendarDate(gCalendarDates, this.serviceIds);
+			return excludeUselessCalendarDateInt(gCalendarDates, this.serviceIds);
 		}
 		return super.excludeCalendarDate(gCalendarDates);
 	}
 
 	@Override
-	public boolean excludeTrip(GTrip gTrip) {
+	public boolean excludeTrip(@NotNull GTrip gTrip) {
 		if (this.serviceIds != null) {
-			return excludeUselessTrip(gTrip, this.serviceIds);
+			return excludeUselessTripInt(gTrip, this.serviceIds);
 		}
 		return super.excludeTrip(gTrip);
 	}
 
+	@NotNull
 	@Override
 	public Integer getAgencyRouteType() {
 		return MAgency.ROUTE_TYPE_BUS;
@@ -97,7 +100,7 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 	private static final String D = "D";
 
 	@Override
-	public long getRouteId(GRoute gRoute) {
+	public long getRouteId(@NotNull GRoute gRoute) {
 		if (Utils.isDigitsOnly(gRoute.getRouteShortName())) {
 			return Long.parseLong(gRoute.getRouteShortName()); // use route short name as route ID
 		}
@@ -109,8 +112,9 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 		return -1L;
 	}
 
+	@Nullable
 	@Override
-	public String getRouteShortName(GRoute gRoute) {
+	public String getRouteShortName(@NotNull GRoute gRoute) {
 		Matcher matcher = DIGITS.matcher(gRoute.getRouteShortName());
 		if (matcher.find()) {
 			return matcher.group(); // merge routes
@@ -119,9 +123,10 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 		return null;
 	}
 
+	@NotNull
 	@Override
-	public String getRouteLongName(GRoute gRoute) {
-		String routeLongName = gRoute.getRouteLongName();
+	public String getRouteLongName(@NotNull GRoute gRoute) {
+		String routeLongName = gRoute.getRouteLongNameOrDefault();
 		if (Utils.isUppercaseOnly(routeLongName, true, true)) {
 			routeLongName = routeLongName.toLowerCase(Locale.ENGLISH);
 		}
@@ -129,7 +134,7 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 	}
 
 	@Override
-	public boolean mergeRouteLongName(MRoute mRoute, MRoute mRouteToMerge) {
+	public boolean mergeRouteLongName(@NotNull MRoute mRoute, @NotNull MRoute mRouteToMerge) {
 		if (mRoute.getId() == 100L) {
 			mRoute.setLongName("Georgian Express");
 			return true;
@@ -140,13 +145,15 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 	private static final String AGENCY_COLOR_BLUE = "336699"; // BLUE (from web site CSS)
 	private static final String AGENCY_COLOR = AGENCY_COLOR_BLUE;
 
+	@NotNull
 	@Override
 	public String getAgencyColor() {
 		return AGENCY_COLOR;
 	}
 
+	@Nullable
 	@Override
-	public String getRouteColor(GRoute gRoute) {
+	public String getRouteColor(@NotNull GRoute gRoute) {
 		Matcher matcher = DIGITS.matcher(gRoute.getRouteShortName());
 		if (matcher.find()) {
 			int routeId = Integer.parseInt(matcher.group());
@@ -166,8 +173,7 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 			// @formatter:on
 			}
 		}
-		MTLog.logFatal("Unexpected route color %s!", gRoute);
-		return null;
+		throw new MTLog.Fatal("Unexpected route color %s!", gRoute);
 	}
 
 	private static HashMap<Long, RouteTripSpec> ALL_ROUTE_TRIPS2;
@@ -179,23 +185,32 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 	}
 
 	@Override
-	public int compareEarly(long routeId, List<MTripStop> list1, List<MTripStop> list2, MTripStop ts1, MTripStop ts2, GStop ts1GStop, GStop ts2GStop) {
+	public int compareEarly(long routeId,
+							@NotNull List<MTripStop> list1, @NotNull List<MTripStop> list2,
+							@NotNull MTripStop ts1, @NotNull MTripStop ts2,
+							@NotNull GStop ts1GStop, @NotNull GStop ts2GStop) {
 		if (ALL_ROUTE_TRIPS2.containsKey(routeId)) {
 			return ALL_ROUTE_TRIPS2.get(routeId).compare(routeId, list1, list2, ts1, ts2, ts1GStop, ts2GStop, this);
 		}
 		return super.compareEarly(routeId, list1, list2, ts1, ts2, ts1GStop, ts2GStop);
 	}
 
+	@NotNull
 	@Override
-	public ArrayList<MTrip> splitTrip(MRoute mRoute, GTrip gTrip, GSpec gtfs) {
+	public ArrayList<MTrip> splitTrip(@NotNull MRoute mRoute, @Nullable GTrip gTrip, @NotNull GSpec gtfs) {
 		if (ALL_ROUTE_TRIPS2.containsKey(mRoute.getId())) {
 			return ALL_ROUTE_TRIPS2.get(mRoute.getId()).getAllTrips();
 		}
 		return super.splitTrip(mRoute, gTrip, gtfs);
 	}
 
+	@NotNull
 	@Override
-	public Pair<Long[], Integer[]> splitTripStop(MRoute mRoute, GTrip gTrip, GTripStop gTripStop, ArrayList<MTrip> splitTrips, GSpec routeGTFS) {
+	public Pair<Long[], Integer[]> splitTripStop(@NotNull MRoute mRoute,
+												 @NotNull GTrip gTrip,
+												 @NotNull GTripStop gTripStop,
+												 @NotNull ArrayList<MTrip> splitTrips,
+												 @NotNull GSpec routeGTFS) {
 		if (ALL_ROUTE_TRIPS2.containsKey(mRoute.getId())) {
 			return SplitUtils.splitTripStop(mRoute, gTrip, gTripStop, routeGTFS, ALL_ROUTE_TRIPS2.get(mRoute.getId()), this);
 		}
@@ -203,11 +218,14 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 	}
 
 	@Override
-	public void setTripHeadsign(MRoute mRoute, MTrip mTrip, GTrip gTrip, GSpec gtfs) {
+	public void setTripHeadsign(@NotNull MRoute mRoute, @NotNull MTrip mTrip, @NotNull GTrip gTrip, @NotNull GSpec gtfs) {
 		if (ALL_ROUTE_TRIPS2.containsKey(mRoute.getId())) {
 			return; // split
 		}
 		GRoute gRoute = gtfs.getRoute(gTrip.getRouteId());
+		if (gRoute == null) {
+			throw new MTLog.Fatal("%s: Unexpected trip: %s", mRoute.getShortName(), gTrip);
+		}
 		String rsn = gRoute.getRouteShortName().trim();
 		String rsn_letter = rsn.substring(rsn.length() - 1);
 		String tripHeadsign = rsn_letter + " " + getRouteLongName(gRoute);
@@ -219,14 +237,13 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 				D.equals(rsn_letter)) {
 			directionId = 1;
 		} else {
-			MTLog.logFatal("%s: Unexpected trip: %s", mRoute.getShortName(), gTrip);
-			return;
+			throw new MTLog.Fatal("%s: Unexpected trip: %s", mRoute.getShortName(), gTrip);
 		}
 		mTrip.setHeadsignString(cleanTripHeadsign(tripHeadsign), directionId);
 	}
 
 	@Override
-	public boolean mergeHeadsign(MTrip mTrip, MTrip mTripToMerge) {
+	public boolean mergeHeadsign(@NotNull MTrip mTrip, @NotNull MTrip mTripToMerge) {
 		List<String> headsignsValues = Arrays.asList(mTrip.getHeadsignValue(), mTripToMerge.getHeadsignValue());
 		if (mTrip.getRouteId() == 11L) {
 			if (Arrays.asList( //
@@ -280,12 +297,8 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 				return true;
 			}
 		}
-		MTLog.logFatal("Unexpected trips to merge: %s & %s!", mTrip, mTripToMerge);
-		return false;
+		throw new MTLog.Fatal("Unexpected trips to merge: %s & %s!", mTrip, mTripToMerge);
 	}
-
-	private static final Pattern STARTS_WITH_TO = Pattern.compile("(([A-Z])?(.*)( to )(.*))", Pattern.CASE_INSENSITIVE);
-	private static final String STARTS_WITH_TO_REPLACEMENT = "$2 $5";
 
 	private static final Pattern DBT_ = CleanUtils.cleanWords("dbt");
 	private static final String DBT_REPLACEMENT = CleanUtils.cleanWordsReplacement("DBT");
@@ -293,24 +306,26 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 	private static final Pattern GC_ = CleanUtils.cleanWords("gc");
 	private static final String GC_REPLACEMENT = CleanUtils.cleanWordsReplacement("GC");
 
+	@NotNull
 	@Override
-	public String cleanTripHeadsign(String tripHeadsign) {
-		tripHeadsign = STARTS_WITH_TO.matcher(tripHeadsign).replaceAll(STARTS_WITH_TO_REPLACEMENT);
+	public String cleanTripHeadsign(@NotNull String tripHeadsign) {
+		tripHeadsign = CleanUtils.keepToAndRemoveVia(tripHeadsign);
 		tripHeadsign = DBT_.matcher(tripHeadsign).replaceAll(DBT_REPLACEMENT);
 		tripHeadsign = GC_.matcher(tripHeadsign).replaceAll(GC_REPLACEMENT);
 		tripHeadsign = CleanUtils.cleanStreetTypes(tripHeadsign);
 		return CleanUtils.cleanLabel(tripHeadsign);
 	}
 
+	@NotNull
 	@Override
-	public String cleanStopName(String gStopName) {
+	public String cleanStopName(@NotNull String gStopName) {
 		gStopName = CleanUtils.CLEAN_AT.matcher(gStopName).replaceAll(CleanUtils.CLEAN_AT_REPLACEMENT);
 		gStopName = CleanUtils.cleanStreetTypes(gStopName);
 		return CleanUtils.cleanLabel(gStopName);
 	}
 
 	@Override
-	public int getStopId(GStop gStop) {
+	public int getStopId(@NotNull GStop gStop) {
 		String stopCode = gStop.getStopCode();
 		if (Utils.isDigitsOnly(stopCode)) {
 			return Integer.parseInt(stopCode); // use stop code as stop ID
@@ -322,12 +337,10 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 			if (stopCode.startsWith("AG ")) {
 				stopId = 100_000;
 			} else {
-				MTLog.logFatal("Stop doesn't have an ID (start with)! %s", gStop);
-				return -1;
+				throw new MTLog.Fatal("Stop doesn't have an ID (start with)! %s", gStop);
 			}
 			return stopId + digits;
 		}
-		MTLog.logFatal("Unexpected stop ID for %s!", gStop);
-		return -1;
+		throw new MTLog.Fatal("Unexpected stop ID for %s!", gStop);
 	}
 }
