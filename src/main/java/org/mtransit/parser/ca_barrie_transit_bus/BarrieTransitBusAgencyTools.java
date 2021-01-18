@@ -95,15 +95,15 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 
 	@Override
 	public long getRouteId(@NotNull GRoute gRoute) {
-		if (Utils.isDigitsOnly(gRoute.getRouteShortName())) {
-			return Long.parseLong(gRoute.getRouteShortName()); // use route short name as route ID
+		final String rsn = gRoute.getRouteShortName();
+		if (Utils.isDigitsOnly(rsn)) {
+			return Long.parseLong(rsn); // use route short name as route ID
 		}
-		Matcher matcher = DIGITS.matcher(gRoute.getRouteShortName());
+		Matcher matcher = DIGITS.matcher(rsn);
 		if (matcher.find()) {
 			return Long.parseLong(matcher.group()); // merge routes
 		}
-		MTLog.logFatal("Unexpected route ID %s!", gRoute);
-		return -1L;
+		throw new MTLog.Fatal("Unexpected route ID for %s!", gRoute);
 	}
 
 	@Nullable
@@ -113,8 +113,7 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 		if (matcher.find()) {
 			return matcher.group(); // merge routes
 		}
-		MTLog.logFatal("Unexpected route short name for %s!", gRoute);
-		return null;
+		throw new MTLog.Fatal("Unexpected route short name for %s!", gRoute);
 	}
 
 	@NotNull
