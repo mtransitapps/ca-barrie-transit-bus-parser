@@ -5,6 +5,7 @@ import org.jetbrains.annotations.Nullable;
 import org.mtransit.parser.CleanUtils;
 import org.mtransit.parser.DefaultAgencyTools;
 import org.mtransit.parser.MTLog;
+import org.mtransit.parser.StringUtils;
 import org.mtransit.parser.Utils;
 import org.mtransit.parser.gtfs.data.GCalendar;
 import org.mtransit.parser.gtfs.data.GCalendarDate;
@@ -147,26 +148,29 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 	@Nullable
 	@Override
 	public String getRouteColor(@NotNull GRoute gRoute) {
-		Matcher matcher = DIGITS.matcher(gRoute.getRouteShortName());
-		if (matcher.find()) {
-			int routeId = Integer.parseInt(matcher.group());
-			switch (routeId) {
-			// @formatter:off
-			case 1: return "EC008C";
-			case 2: return "ED1C24";
-			case 3: return "0089CF";
-			case 4: return "918BC3";
-			case 5: return "8ED8F8";
-			case 6: return "B2D235";
-			case 7: return "F58220";
-			case 8: return "000000";
-			case 11: return "FFFF00";
-			case 90: return "007236";
-			case 100: return "57AD40";
-			// @formatter:on
+		if (StringUtils.isEmpty(gRoute.getRouteColor())) {
+			Matcher matcher = DIGITS.matcher(gRoute.getRouteShortName());
+			if (matcher.find()) {
+				int routeId = Integer.parseInt(matcher.group());
+				switch (routeId) {
+				// @formatter:off
+				case 1: return "EC008C";
+				case 2: return "ED1C24";
+				case 3: return "0089CF";
+				case 4: return "918BC3";
+				case 5: return "8ED8F8";
+				case 6: return "B2D235";
+				case 7: return "F58220";
+				case 8: return "000000";
+				case 11: return "FFFF00";
+				case 90: return "007236";
+				case 100: return "57AD40";
+				// @formatter:on
+				}
 			}
+			throw new MTLog.Fatal("Unexpected route color %s!", gRoute);
 		}
-		throw new MTLog.Fatal("Unexpected route color %s!", gRoute);
+		return super.getRouteColor(gRoute);
 	}
 
 	@Override
@@ -180,16 +184,24 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 		String rsn_letter = rsn.substring(rsn.length() - 1);
 		String tripHeadsign = rsn_letter + " " + getRouteLongName(gRoute);
 		int directionId;
-		if (A.equals(rsn_letter) || //
-				C.equals(rsn_letter)) {
+		if (A.equals(rsn_letter)
+				|| C.equals(rsn_letter)) {
 			directionId = 0;
-		} else if (B.equals(rsn_letter) || //
-				D.equals(rsn_letter)) {
+		} else if (B.equals(rsn_letter)
+				|| D.equals(rsn_letter)) {
 			directionId = 1;
 		} else {
 			throw new MTLog.Fatal("%s: Unexpected trip: %s", mRoute.getShortName(), gTrip);
 		}
-		mTrip.setHeadsignString(cleanTripHeadsign(tripHeadsign), directionId);
+		mTrip.setHeadsignString(
+				cleanTripHeadsign(tripHeadsign),
+				directionId
+		);
+	}
+
+	@Override
+	public boolean directionFinderEnabled() {
+		return false; // disabled because 2 GTFS routes = 1 route & provided direction ID invalid/useless (same direction ID for 2 distinct directions)
 	}
 
 	@Override
