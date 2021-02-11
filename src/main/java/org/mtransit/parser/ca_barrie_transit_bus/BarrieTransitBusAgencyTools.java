@@ -2,10 +2,11 @@ package org.mtransit.parser.ca_barrie_transit_bus;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.mtransit.parser.CleanUtils;
+import org.mtransit.commons.CharUtils;
+import org.mtransit.commons.CleanUtils;
+import org.mtransit.commons.StringUtils;
 import org.mtransit.parser.DefaultAgencyTools;
 import org.mtransit.parser.MTLog;
-import org.mtransit.parser.StringUtils;
 import org.mtransit.parser.Utils;
 import org.mtransit.parser.gtfs.data.GCalendar;
 import org.mtransit.parser.gtfs.data.GCalendarDate;
@@ -97,10 +98,10 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 	@Override
 	public long getRouteId(@NotNull GRoute gRoute) {
 		final String rsn = gRoute.getRouteShortName();
-		if (Utils.isDigitsOnly(rsn)) {
+		if (CharUtils.isDigitsOnly(rsn)) {
 			return Long.parseLong(rsn); // use route short name as route ID
 		}
-		Matcher matcher = DIGITS.matcher(rsn);
+		final Matcher matcher = DIGITS.matcher(rsn);
 		if (matcher.find()) {
 			return Long.parseLong(matcher.group()); // merge routes
 		}
@@ -110,7 +111,7 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 	@Nullable
 	@Override
 	public String getRouteShortName(@NotNull GRoute gRoute) {
-		Matcher matcher = DIGITS.matcher(gRoute.getRouteShortName());
+		final Matcher matcher = DIGITS.matcher(gRoute.getRouteShortName());
 		if (matcher.find()) {
 			return matcher.group(); // merge routes
 		}
@@ -121,7 +122,7 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 	@Override
 	public String getRouteLongName(@NotNull GRoute gRoute) {
 		String routeLongName = gRoute.getRouteLongNameOrDefault();
-		if (Utils.isUppercaseOnly(routeLongName, true, true)) {
+		if (CharUtils.isUppercaseOnly(routeLongName, true, true)) {
 			routeLongName = routeLongName.toLowerCase(Locale.ENGLISH);
 		}
 		return CleanUtils.cleanLabel(routeLongName);
@@ -289,7 +290,7 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 	@Override
 	public int getStopId(@NotNull GStop gStop) {
 		String stopCode = gStop.getStopCode();
-		if (Utils.isDigitsOnly(stopCode)) {
+		if (CharUtils.isDigitsOnly(stopCode)) {
 			return Integer.parseInt(stopCode); // use stop code as stop ID
 		}
 		Matcher matcher = DIGITS.matcher(stopCode);
