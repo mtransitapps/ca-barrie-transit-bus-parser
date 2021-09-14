@@ -1,5 +1,8 @@
 package org.mtransit.parser.ca_barrie_transit_bus;
 
+import static org.mtransit.commons.RegexUtils.DIGITS;
+import static org.mtransit.commons.StringUtils.EMPTY;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mtransit.commons.CharUtils;
@@ -14,8 +17,6 @@ import org.mtransit.parser.mt.data.MAgency;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static org.mtransit.commons.StringUtils.EMPTY;
 
 // http://www.barrie.ca/Living/Getting%20Around/BarrieTransit/Pages/Barrie-GTFS.aspx
 // http://transit.cityofbarriesites.com/files/google_transit.zip
@@ -44,33 +45,14 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 		return MAgency.ROUTE_TYPE_BUS;
 	}
 
-	private static final Pattern DIGITS = Pattern.compile("[\\d]+");
-
-	private static final String A = "A";
-	private static final String B = "B";
-	private static final String C = "C";
-	private static final String D = "D";
+	@Override
+	public boolean defaultRouteIdEnabled() {
+		return true;
+	}
 
 	@Override
-	public long getRouteId(@NotNull GRoute gRoute) {
-		final String rsn = gRoute.getRouteShortName().trim();
-		if (CharUtils.isDigitsOnly(rsn)) {
-			return Long.parseLong(rsn); // use route short name as route ID
-		}
-		final Matcher matcher = DIGITS.matcher(rsn);
-		if (matcher.find()) {
-			long digits = Long.parseLong(matcher.group());
-			if (rsn.endsWith(A)) {
-				return 10_000L + digits;
-			} else if (rsn.endsWith(B)) {
-				return 20_000L + digits;
-			} else if (rsn.endsWith(C)) {
-				return 30_000L + digits;
-			} else if (rsn.endsWith(D)) {
-				return 40_000L + digits;
-			}
-		}
-		throw new MTLog.Fatal("Unexpected route ID for %s!", gRoute);
+	public boolean useRouteShortNameForRouteId() {
+		return true;
 	}
 
 	@NotNull
@@ -86,6 +68,11 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 		};
 	}
 
+	@Override
+	public boolean defaultAgencyColorEnabled() {
+		return true;
+	}
+
 	private static final String AGENCY_COLOR_BLUE = "336699"; // BLUE (from web site CSS)
 	private static final String AGENCY_COLOR = AGENCY_COLOR_BLUE;
 
@@ -97,11 +84,11 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 
 	@Nullable
 	@Override
-	public String getRouteColor(@NotNull GRoute gRoute) {
+	public String getRouteColor(@NotNull GRoute gRoute, @NotNull MAgency agency) {
 		if (StringUtils.isEmpty(gRoute.getRouteColor())) {
-			Matcher matcher = DIGITS.matcher(gRoute.getRouteShortName());
+			final Matcher matcher = DIGITS.matcher(gRoute.getRouteShortName());
 			if (matcher.find()) {
-				int routeId = Integer.parseInt(matcher.group());
+				final int routeId = Integer.parseInt(matcher.group());
 				switch (routeId) {
 				// @formatter:off
 				case 1: return "EC008C";
@@ -120,7 +107,7 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 			}
 			throw new MTLog.Fatal("Unexpected route color %s!", gRoute);
 		}
-		return super.getRouteColor(gRoute);
+		return super.getRouteColor(gRoute, agency);
 	}
 
 	@Override
