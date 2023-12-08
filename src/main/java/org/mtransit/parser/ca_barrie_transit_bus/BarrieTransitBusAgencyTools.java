@@ -7,7 +7,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mtransit.commons.CharUtils;
 import org.mtransit.commons.CleanUtils;
-import org.mtransit.commons.StringUtils;
 import org.mtransit.parser.DefaultAgencyTools;
 import org.mtransit.parser.MTLog;
 import org.mtransit.parser.gtfs.data.GRoute;
@@ -18,10 +17,9 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-// http://www.barrie.ca/Living/Getting%20Around/BarrieTransit/Pages/Barrie-GTFS.aspx
-// http://transit.cityofbarriesites.com/files/google_transit.zip
-// http://www.myridebarrie.ca/gtfs/
-// http://www.myridebarrie.ca/gtfs/google_transit.zip
+// https://www.barrie.ca/services-payments/transportation-parking/barrie-transit/barrie-gtfs
+// OLD: http://transit.cityofbarriesites.com/files/google_transit.zip
+// https://www.myridebarrie.ca/gtfs/
 public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 
 	public static void main(@NotNull String[] args) {
@@ -82,32 +80,29 @@ public class BarrieTransitBusAgencyTools extends DefaultAgencyTools {
 		return AGENCY_COLOR;
 	}
 
-	@Nullable
 	@Override
-	public String getRouteColor(@NotNull GRoute gRoute, @NotNull MAgency agency) {
-		if (StringUtils.isEmpty(gRoute.getRouteColor())) {
-			final Matcher matcher = DIGITS.matcher(gRoute.getRouteShortName());
-			if (matcher.find()) {
-				final int routeId = Integer.parseInt(matcher.group());
-				switch (routeId) {
-				// @formatter:off
-				case 1: return "EC008C";
-				case 2: return "ED1C24";
-				case 3: return "0089CF";
-				case 4: return "918BC3";
-				case 5: return "8ED8F8";
-				case 6: return "B2D235";
-				case 7: return "F58220";
-				case 8: return "000000";
-				case 11: return "FFFF00";
-				case 90: return "007236";
-				case 100: return "57AD40";
-				// @formatter:on
-				}
+	public @Nullable String provideMissingRouteColor(@NotNull GRoute gRoute) {
+		final Matcher matcher = DIGITS.matcher(gRoute.getRouteShortName());
+		if (matcher.find()) {
+			final int routeId = Integer.parseInt(matcher.group());
+			switch (routeId) {
+			// @formatter:off
+			case 1: return "EC008C";
+			case 2: return "ED1C24";
+			case 3: return "0089CF";
+			case 4: return "918BC3";
+			case 5: return "8ED8F8";
+			case 6: return "B2D235";
+			case 7: return "F58220";
+			case 8: return "000000";
+			case 11: return "FFFF00";
+			case 90: return "007236";
+			case 100: return "57AD40";
+			// @formatter:on
 			}
 			throw new MTLog.Fatal("Unexpected route color %s!", gRoute);
 		}
-		return super.getRouteColor(gRoute, agency);
+		return super.provideMissingRouteColor(gRoute);
 	}
 
 	@Override
